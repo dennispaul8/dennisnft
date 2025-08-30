@@ -100,9 +100,10 @@ module dennisnft:: dennisnft {   //defines a new module named nft
     }
 
     /// Permanently delete nft
-   public entry fun burn_any<T: key>(obj: T) {
-    let id = object::uid_to_inner(&obj.id);
-    object::delete(id);
+  public entry fun burn_nft<T: key + store>(nft: T) {
+    // Transfer to burn address - this is the most practical approach
+    // for a generic burn function that works across packages
+    sui::transfer::public_transfer(nft, @0x0);
 }
 
     /// Get the NFT's name

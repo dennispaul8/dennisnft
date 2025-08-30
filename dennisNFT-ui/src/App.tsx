@@ -1,20 +1,18 @@
 import { useState } from "react";
 import { Transaction } from "@mysten/sui/transactions";
-import { useWallet } from "./hooks/useWallet";
 import {
   ConnectButton,
   useCurrentAccount,
   useSignAndExecuteTransaction,
 } from "@mysten/dapp-kit";
-import { FetchNFTs } from "./FetchNFTs";
 import { getFullnodeUrl, SuiClient } from "@mysten/sui/client";
 
 export const PACKAGE_ID =
-  "0x25c51a1aa26f60f562b02f59ebfb124acdee3844401d66d98cb76bd0fc33bc09";
+  "0x9688773ae64878a692ed9d77a488f79ed73a6dd47dffabd4a230fe4cc41d2d83";
 
 function App() {
   const { mutate: signAndExecuteTransaction } = useSignAndExecuteTransaction();
-  // const { signer: signAndExecuteTransaction } = useWallet();
+
   const account = useCurrentAccount();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -66,41 +64,53 @@ function App() {
     }
 
     try {
-      const nftIds = await FetchNFTs(account.address);
-      if (!nftIds || nftIds.length === 0) {
-        alert("No NFTs found to burn");
+      const objects = await client.getOwnedObjects({
+        owner: account.address,
+        options: {
+          showContent: true,
+          showType: true,
+        },
+      });
+
+      const burnableObjects = objects.data.filter((obj) => {
+        const type = obj.data?.type || "";
+
+        return (
+          type.includes("::DennisNFT") ||
+          type.includes("::SomeOtherNFT") ||
+          type.includes("::MyNFT")
+        );
+      });
+
+      if (burnableObjects.length === 0) {
+        alert("No burnable NFTs found");
         return;
       }
 
-      const objects = await client.getOwnedObjects({
-        owner: account.address,
-        options: { showContent: true },
-      });
-
-      // Build transaction block
       const tx = new Transaction();
-      for (const obj of objects.data) {
-        const type = obj.data?.type || "";
-        if (type.includes("::DennisNFT") || type.includes("::SomeOtherNFT")) {
-          tx.moveCall({
-            target: `${PACKAGE_ID}::dennisnft::burn_any`, // now accepts any object type
-            typeArguments: [type], // pass the type dynamically
-            arguments: [tx.object(obj.data!.objectId)],
-          });
-        }
+
+      for (const obj of burnableObjects) {
+        if (!obj.data?.objectId || !obj.data?.type) continue;
+
+        const objectType = obj.data.type;
+
+        tx.moveCall({
+          target: `${PACKAGE_ID}::dennisnft::burn_nft`,
+          typeArguments: [objectType],
+          arguments: [tx.object(obj.data.objectId)],
+        });
       }
 
-      // Execute
-      await signAndExecuteTransaction({
+      const result = await signAndExecuteTransaction({
         transaction: tx,
         chain: "sui:testnet",
       });
 
-      console.log("Burn success:");
-      alert("NFT burned successfully!");
+      console.log("Burn success:", result);
+      alert(`Successfully burned ${burnableObjects.length} NFT(s)!`);
     } catch (error) {
       console.error("Burn failed:", error);
-      alert("Error burning NFT");
+      // alert(`Error burning NFT: ${error.message || error}`);
     }
   };
 

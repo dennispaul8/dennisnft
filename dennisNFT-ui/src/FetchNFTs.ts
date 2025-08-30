@@ -1,3 +1,4 @@
+
 import { SuiClient, getFullnodeUrl } from "@mysten/sui/client";
 import { PACKAGE_ID } from "./App";
 
@@ -13,4 +14,20 @@ export async function FetchNFTs(address: string): Promise<string[]> {
   return objects.data
     .map((obj) => obj.data?.objectId)
     .filter((id): id is string => !!id);
+}
+
+export async function FetchAllNFTs(address: string) {
+  const objects = await client.getOwnedObjects({
+    owner: address,
+    options: { 
+      showContent: true,
+      showType: true 
+    },
+  });
+
+  return objects.data.filter(obj => {
+    const type = obj.data?.type || "";
+   
+    return type.includes("::") && obj.data?.objectId;
+  });
 }
