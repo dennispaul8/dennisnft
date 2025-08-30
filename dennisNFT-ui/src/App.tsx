@@ -6,10 +6,11 @@ import {
   useCurrentAccount,
   useSignAndExecuteTransaction,
 } from "@mysten/dapp-kit";
-import ( )from "./FetchNFTs";
+import { FetchNFTs } from "./FetchNFTs";
+import { getFullnodeUrl, SuiClient } from "@mysten/sui/client";
 
-const PACKAGE_ID =
-  "0x40a6faf250e542ed33c3b6cbda7c70406037e9e67907d08fe0b15eed7caaba72";
+export const PACKAGE_ID =
+  "0x25c51a1aa26f60f562b02f59ebfb124acdee3844401d66d98cb76bd0fc33bc09";
 
 function App() {
   const { mutate: signAndExecuteTransaction } = useSignAndExecuteTransaction();
@@ -57,20 +58,50 @@ function App() {
       }
     );
   };
+  const client = new SuiClient({ url: getFullnodeUrl("testnet") });
+  const handleBurnNft = async () => {
+    if (!account?.address) {
+      alert("Connect wallet first");
+      return;
+    }
 
-  const handleBurnNft = () => {
-    const tx = new Transaction();
-    tx.moveCall({
-      target: `${PACKAGE_ID}::dennisnft::burn`,
-      arguments: [
-        tx.object(FetchNFTs()), // nftId = object ID of the NFT to burn
-      ],
-    });
+    try {
+      const nftIds = await FetchNFTs(account.address);
+      if (!nftIds || nftIds.length === 0) {
+        alert("No NFTs found to burn");
+        return;
+      }
 
-    signAndExecuteTransaction({
-      transaction: tx,
-      chain: "sui:testnet",
-    });
+      const objects = await client.getOwnedObjects({
+        owner: account.address,
+        options: { showContent: true },
+      });
+
+      // Build transaction block
+      const tx = new Transaction();
+      for (const obj of objects.data) {
+        const type = obj.data?.type || "";
+        if (type.includes("::DennisNFT") || type.includes("::SomeOtherNFT")) {
+          tx.moveCall({
+            target: `${PACKAGE_ID}::dennisnft::burn_any`, // now accepts any object type
+            typeArguments: [type], // pass the type dynamically
+            arguments: [tx.object(obj.data!.objectId)],
+          });
+        }
+      }
+
+      // Execute
+      await signAndExecuteTransaction({
+        transaction: tx,
+        chain: "sui:testnet",
+      });
+
+      console.log("Burn success:");
+      alert("NFT burned successfully!");
+    } catch (error) {
+      console.error("Burn failed:", error);
+      alert("Error burning NFT");
+    }
   };
 
   const isFormValid =
@@ -162,10 +193,15 @@ function App() {
                   Connect a wallet to mint.
                 </p>
               )}
+
+              <button
+                className="w-full rounded-2xl font-semibold py-2.5 border border-slate-300 shadow-sm bg-slate-900 text-white hover:opacity-95 active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed transition"
+                onClick={handleBurnNft}
+              >
+                Burn NFT
+              </button>
             </div>
           </div>
-
-          <button onClick={handleBurnNft}>Burn NFT</button>
 
           {/* Preview card */}
           <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">

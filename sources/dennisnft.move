@@ -2,7 +2,7 @@ module dennisnft:: dennisnft {   //defines a new module named nft
 
     use sui::url::{Self, Url}; //Imports the Url struct and related functions from the Sui standard library.
      //This allows you to use URLs (e.g., for NFT metadata) in your module.
-    use std::string; //Imports the string module, This gives you access to string types and utilities.
+    use std::string::{Self, String}; //Imports the string module, This gives you access to string types and utilities.
     use sui::event; //Let you emit event. E.g., when an NFT is minted out.
     use sui::display;//provides functionality for defining how objects are displayed in wallets, explorers, and other apps.
     use sui::package;
@@ -36,8 +36,8 @@ module dennisnft:: dennisnft {   //defines a new module named nft
         name: string::String,
     }
 
-    fun init(witness: DENNISNFT, ctx: &mut TxContext) {
-        let publisher = package::claim(witness, ctx);
+    fun init( witness: DENNISNFT,ctx: &mut TxContext) {
+         let publisher = package::claim(witness, ctx);
 
         let keys = vector[
             string::utf8(b"name"),
@@ -47,10 +47,10 @@ module dennisnft:: dennisnft {   //defines a new module named nft
         ];
 
         let values = vector[
-             string::utf8(name),
-        string::utf8(description),
-        string::utf8(image_url),
-        string::utf8(creator)
+           string::utf8(b"{name}"),
+            string::utf8(b"{description}"),
+            string::utf8(b"{url}"),
+            string::utf8(b"{creator}")
         ];
 
         let mut display = display::new_with_fields<DennisNFT>(
@@ -100,10 +100,10 @@ module dennisnft:: dennisnft {   //defines a new module named nft
     }
 
     /// Permanently delete nft
-    public entry fun burn(nft: DennisNFT) {
-        let DennisNFT { id, name: _, description: _, url: _ } = nft;
-        object::delete(id)
-    }
+   public entry fun burn_any<T: key>(obj: T) {
+    let id = object::uid_to_inner(&obj.id);
+    object::delete(id);
+}
 
     /// Get the NFT's name
     public fun name(nft: &DennisNFT): &string::String {
