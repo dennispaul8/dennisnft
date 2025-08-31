@@ -5,7 +5,7 @@ import {
   useCurrentAccount,
   useSignAndExecuteTransaction,
 } from "@mysten/dapp-kit";
-import { getFullnodeUrl, SuiClient } from "@mysten/sui/client";
+import { NFTBurnSelector } from "./FetchNFTs";
 
 export const PACKAGE_ID =
   "0x9688773ae64878a692ed9d77a488f79ed73a6dd47dffabd4a230fe4cc41d2d83";
@@ -42,6 +42,7 @@ function App() {
         onSuccess: (result) => {
           console.log("Mint success:", result);
           alert("NFT Minted successfully!");
+          window.location.reload();
           setName("");
           setDescription("");
           setImageUrl("");
@@ -56,63 +57,64 @@ function App() {
       }
     );
   };
-  const client = new SuiClient({ url: getFullnodeUrl("testnet") });
-  const handleBurnNft = async () => {
-    if (!account?.address) {
-      alert("Connect wallet first");
-      return;
-    }
+  // const client = new SuiClient({ url: getFullnodeUrl("testnet") });
 
-    try {
-      const objects = await client.getOwnedObjects({
-        owner: account.address,
-        options: {
-          showContent: true,
-          showType: true,
-        },
-      });
+  // const handleBurnNft = async () => {
+  //   if (!account?.address) {
+  //     alert("Connect wallet first");
+  //     return;
+  //   }
 
-      const burnableObjects = objects.data.filter((obj) => {
-        const type = obj.data?.type || "";
+  //   try {
+  //     const objects = await client.getOwnedObjects({
+  //       owner: account.address,
+  //       options: {
+  //         showContent: true,
+  //         showType: true,
+  //       },
+  //     });
 
-        return (
-          type.includes("::DennisNFT") ||
-          type.includes("::SomeOtherNFT") ||
-          type.includes("::MyNFT")
-        );
-      });
+  //     const burnableObjects = objects.data.filter((obj) => {
+  //       const type = obj.data?.type || "";
 
-      if (burnableObjects.length === 0) {
-        alert("No burnable NFTs found");
-        return;
-      }
+  //       return (
+  //         type.includes("::DennisNFT") ||
+  //         type.includes("::SomeOtherNFT") ||
+  //         type.includes("::MyNFT")
+  //       );
+  //     });
 
-      const tx = new Transaction();
+  //     if (burnableObjects.length === 0) {
+  //       alert("No burnable NFTs found");
+  //       return;
+  //     }
 
-      for (const obj of burnableObjects) {
-        if (!obj.data?.objectId || !obj.data?.type) continue;
+  //     const tx = new Transaction();
 
-        const objectType = obj.data.type;
+  //     for (const obj of burnableObjects) {
+  //       if (!obj.data?.objectId || !obj.data?.type) continue;
 
-        tx.moveCall({
-          target: `${PACKAGE_ID}::dennisnft::burn_nft`,
-          typeArguments: [objectType],
-          arguments: [tx.object(obj.data.objectId)],
-        });
-      }
+  //       const objectType = obj.data.type;
 
-      const result = await signAndExecuteTransaction({
-        transaction: tx,
-        chain: "sui:testnet",
-      });
+  //       tx.moveCall({
+  //         target: `${PACKAGE_ID}::dennisnft::burn_nft`,
+  //         typeArguments: [objectType],
+  //         arguments: [tx.object(obj.data.objectId)],
+  //       });
+  //     }
 
-      console.log("Burn success:", result);
-      alert(`Successfully burned ${burnableObjects.length} NFT(s)!`);
-    } catch (error) {
-      console.error("Burn failed:", error);
-      // alert(`Error burning NFT: ${error.message || error}`);
-    }
-  };
+  //     const result = await signAndExecuteTransaction({
+  //       transaction: tx,
+  //       chain: "sui:testnet",
+  //     });
+
+  //     console.log("Burn success:", result);
+  //     alert(`Successfully burned ${burnableObjects.length} NFT(s)!`);
+  //   } catch (error) {
+  //     console.error("Burn failed:", error);
+  //     // alert(`Error burning NFT: ${error.message || error}`);
+  //   }
+  // };
 
   const isFormValid =
     name.trim().length > 0 &&
@@ -204,12 +206,12 @@ function App() {
                 </p>
               )}
 
-              <button
+              {/* <button
                 className="w-full rounded-2xl font-semibold py-2.5 border border-slate-300 shadow-sm bg-slate-900 text-white hover:opacity-95 active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed transition"
                 onClick={handleBurnNft}
               >
                 Burn NFT
-              </button>
+              </button> */}
             </div>
           </div>
 
@@ -267,7 +269,10 @@ function App() {
           </div>
         </div>
       </main>
-
+      <NFTBurnSelector
+        account={account}
+        signAndExecuteTransaction={signAndExecuteTransaction}
+      />
       <footer className="py-8 text-center text-xs text-slate-500">
         Built with Sui • Tailwind • Vite
       </footer>
