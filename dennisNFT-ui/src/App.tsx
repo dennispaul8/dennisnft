@@ -122,17 +122,18 @@ function App() {
     imageUrl.trim().length > 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 text-slate-900">
-      <header className="w-full border-b border-slate-200 bg-white/70 backdrop-blur">
+    <div className="min-h-screen bg-gradient-to-b from-indigo-950 via-slate-900 to-black text-slate-100">
+      <header className="w-full backdrop-blur">
         <div className="mx-auto max-w-5xl px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-2xl bg-slate-900 text-white grid place-items-center font-bold">
-              D
-            </div>
             <div>
-              <h1 className="text-lg font-semibold tracking-tight">
-                DennisNFT
-              </h1>
+              <a href="/">
+                <img
+                  src="/dennisnft-logo.png"
+                  alt="DennisNFT Logo"
+                  className="w-20 h-auto" // Adjust width as needed
+                />
+              </a>
               <p className="text-xs text-slate-500">Mint or Burn NFTs on Sui</p>
             </div>
           </div>
@@ -147,7 +148,9 @@ function App() {
         <div className="grid md:grid-cols-2 gap-6">
           {/* Form card */}
           <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
-            <h2 className="text-base font-semibold mb-4">Mint a new NFT</h2>
+            <h2 className="text-base text-black font-semibold mb-4">
+              Mint a new NFT
+            </h2>
 
             <div className="space-y-4">
               <div>
@@ -159,7 +162,8 @@ function App() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Dennis Genesis"
-                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:ring-4 focus:ring-slate-200 focus:border-slate-400"
+                  className="w-full rounded-xl border border-slate-300 bg-white text-slate-800 
+px-3 py-2 text-sm outline-none focus:ring-4 focus:ring-indigo-200 focus:border-indigo-400 placeholder-slate-400"
                 />
               </div>
 
@@ -172,7 +176,8 @@ function App() {
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Brief description of your NFT"
                   rows={4}
-                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:ring-4 focus:ring-slate-200 focus:border-slate-400"
+                  className="w-full rounded-xl border border-slate-300 bg-white text-slate-800 
+px-3 py-2 text-sm outline-none focus:ring-4 focus:ring-indigo-200 focus:border-indigo-400 placeholder-slate-400"
                 />
               </div>
 
@@ -185,7 +190,8 @@ function App() {
                   value={imageUrl}
                   onChange={(e) => setImageUrl(e.target.value)}
                   placeholder="https://…/image.png"
-                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:ring-4 focus:ring-slate-200 focus:border-slate-400"
+                  className="w-full rounded-xl border border-slate-300 bg-white text-slate-800 
+px-3 py-2 text-sm outline-none focus:ring-4 focus:ring-indigo-200 focus:border-indigo-400 placeholder-slate-400"
                 />
                 <p className="text-xs text-slate-500 mt-1">
                   Make sure the URL is publicly accessible (IPFS/HTTPS).
@@ -195,7 +201,11 @@ function App() {
               <button
                 onClick={handleMint}
                 disabled={!account || !isFormValid || minting}
-                className="w-full rounded-2xl font-semibold py-2.5 border border-slate-300 shadow-sm bg-slate-900 text-white hover:opacity-95 active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed transition"
+                className="w-full rounded-2xl font-semibold py-2.5 
+border border-indigo-500 shadow-sm 
+bg-indigo-600 text-white 
+hover:bg-indigo-700 active:scale-[0.99] 
+disabled:opacity-60 disabled:cursor-not-allowed transition"
               >
                 {minting ? "Minting…" : "Mint NFT"}
               </button>
@@ -217,7 +227,9 @@ function App() {
 
           {/* Preview card */}
           <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
-            <h2 className="text-base font-semibold mb-4">Live preview</h2>
+            <h2 className="text-base font-semibold text-black mb-4">
+              Live preview
+            </h2>
             <div className="space-y-3">
               <div className="aspect-video w-full overflow-hidden rounded-xl border border-slate-200 bg-slate-50 grid place-items-center">
                 {imageUrl ? (

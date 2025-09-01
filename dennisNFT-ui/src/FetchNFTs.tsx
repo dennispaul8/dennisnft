@@ -181,7 +181,7 @@ export const NFTBurnSelector = ({
   };
 
   return (
-    <div className="p-6 bg-white rounded-2xl shadow-md space-y-4">
+    <div className="p-6 bg-white text-black rounded-2xl shadow-md space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">Select NFTs to Burn</h3>
