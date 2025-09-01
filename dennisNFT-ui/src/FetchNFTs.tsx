@@ -1,7 +1,8 @@
 import { SuiClient, getFullnodeUrl } from "@mysten/sui/client";
 import { Transaction } from "@mysten/sui/transactions";
 import { PACKAGE_ID } from "./App";
-import { useEffect, useState } from "react";
+
+import { useState } from "react";
 import {
   useCurrentAccount,
   useSignAndExecuteTransaction,
@@ -9,7 +10,6 @@ import {
 
 const client = new SuiClient({ url: getFullnodeUrl("testnet") });
 
-// Interface for NFT data
 interface NFTData {
   objectId: string;
   type: string;
@@ -19,7 +19,6 @@ interface NFTData {
   display?: any;
 }
 
-// Fetch all burnable NFTs with their metadata
 export async function FetchBurnableNFTs(address: string): Promise<NFTData[]> {
   const objects = await client.getOwnedObjects({
     owner: address,
@@ -33,7 +32,7 @@ export async function FetchBurnableNFTs(address: string): Promise<NFTData[]> {
   return objects.data
     .filter((obj) => {
       const type = obj.data?.type || "";
-      // Add your NFT type patterns here
+
       return (
         type.includes("::DennisNFT") ||
         type.includes("::SomeOtherNFT") ||
@@ -69,7 +68,6 @@ export const createBurnTransaction = (selectedNFTs: NFTData[]): Transaction => {
   return tx;
 };
 
-// Burn selected NFTs
 export const burnSelectedNFTs = async (selectedNFTs: NFTData[]) => {
   const { mutate: signAndExecuteTransaction } = useSignAndExecuteTransaction();
 
@@ -109,17 +107,15 @@ interface NFTBurnSelectorProps {
     [key: string]: any;
   }) => void;
 }
-// React component for NFT selection (example)
+
 export const NFTBurnSelector = ({
   account,
   signAndExecuteTransaction,
 }: NFTBurnSelectorProps) => {
-  // const account = useCurrentAccount();
   const [nfts, setNfts] = useState<NFTData[]>([]);
   const [selectedNFTs, setSelectedNFTs] = useState<NFTData[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Load NFTs
   const loadNFTs = async () => {
     if (!account?.address) return;
 
@@ -135,11 +131,6 @@ export const NFTBurnSelector = ({
     }
   };
 
-  useEffect(() => {
-    loadNFTs();
-  }, [account?.address]);
-
-  // Toggle NFT selection
   const toggleNFTSelection = (nft: NFTData) => {
     setSelectedNFTs((prev) => {
       const isSelected = prev.some(
@@ -153,7 +144,6 @@ export const NFTBurnSelector = ({
     });
   };
 
-  // Handle burn
   const handleBurn = async () => {
     if (!account?.address) {
       alert("Please connect your wallet first");
@@ -172,24 +162,18 @@ export const NFTBurnSelector = ({
 
     setLoading(true);
     try {
-      // Create transaction using utility function
       const tx = createBurnTransaction(selectedNFTs);
 
-      // Execute transaction using the passed function
       await signAndExecuteTransaction({
         transaction: tx,
         chain: "sui:testnet",
-        requestType: "WaitForLocalExecution",
       });
 
-      console.log("Burn success:");
-      alert(`Successfully burned ${selectedNFTs.length} NFT(s)!`);
-      window.location.reload();
-      await loadNFTs();
       setSelectedNFTs([]);
-      await loadNFTs(); // Refresh the list
+      await loadNFTs();
+      alert(`Successfully burned ${selectedNFTs.length} NFT(s)!`);
     } catch (error) {
-      console.error("Burn failed:", error);
+      console.error("Burn failed");
       alert(`Failed to burn NFTs`);
     } finally {
       setLoading(false);
@@ -214,7 +198,6 @@ export const NFTBurnSelector = ({
         <p className="text-gray-500">No burnable NFTs found</p>
       ) : (
         <>
-          {/* NFT grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {nfts.map((nft) => {
               const selected = selectedNFTs.some(
@@ -247,7 +230,6 @@ export const NFTBurnSelector = ({
                     </small>
                   </div>
 
-                  {/* Selection indicator */}
                   <div className="absolute top-2 right-2 bg-white rounded-full shadow px-2 py-1 text-sm font-medium">
                     {selected ? "✓" : "○"}
                   </div>
@@ -256,7 +238,6 @@ export const NFTBurnSelector = ({
             })}
           </div>
 
-          {/* Actions */}
           <div className="flex flex-wrap items-center justify-between gap-2 pt-4 border-t border-gray-200">
             <p className="text-sm text-gray-700">
               {selectedNFTs.length} NFT(s) selected

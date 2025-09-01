@@ -133,7 +133,7 @@ function App() {
               <h1 className="text-lg font-semibold tracking-tight">
                 DennisNFT
               </h1>
-              <p className="text-xs text-slate-500">Mint example on Sui</p>
+              <p className="text-xs text-slate-500">Mint or Burn NFTs on Sui</p>
             </div>
           </div>
 
@@ -221,7 +221,6 @@ function App() {
             <div className="space-y-3">
               <div className="aspect-video w-full overflow-hidden rounded-xl border border-slate-200 bg-slate-50 grid place-items-center">
                 {imageUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={imageUrl}
                     alt="Preview"
@@ -269,10 +268,12 @@ function App() {
           </div>
         </div>
       </main>
-      <NFTBurnSelector
-        account={account}
-        signAndExecuteTransaction={signAndExecuteTransaction}
-      />
+      <div className="max-w-5xl mx-auto">
+        <NFTBurnSelector
+          account={account}
+          signAndExecuteTransaction={signAndExecuteTransaction}
+        />
+      </div>
       <footer className="py-8 text-center text-xs text-slate-500">
         Built with Sui • Tailwind • Vite
       </footer>
